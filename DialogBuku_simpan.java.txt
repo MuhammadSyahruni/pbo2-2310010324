@@ -1,0 +1,35 @@
+// Salin ke DialogBuku.java (JDialog Form buatan NetBeans), di dalam method simpan().
+// Atribut: private Buku hasil;  Komponen: kodeField, judulField, penulisField,
+// tahunField, statusCombo (Type Parameters <StatusBuku>), pesanLabel.
+
+private void simpan() {
+    String kode = kodeField.getText().trim();
+    String judul = judulField.getText().trim();
+    if (kode.isEmpty()) {
+        pesanLabel.setText("Kode wajib diisi");
+        kodeField.requestFocusInWindow();
+        return;
+    }
+    if (judul.isEmpty()) {
+        pesanLabel.setText("Judul wajib diisi");
+        judulField.requestFocusInWindow();
+        return;
+    }
+    int tahunIni = java.time.Year.now().getValue();
+    int tahun;
+    try {
+        tahun = Integer.parseInt(tahunField.getText().trim());
+    } catch (NumberFormatException e) {
+        pesanLabel.setText("Tahun berupa angka");
+        tahunField.requestFocusInWindow();
+        return;
+    }
+    if (tahun < 1900 || tahun > tahunIni) {
+        pesanLabel.setText("Tahun terbit 1900 sampai " + tahunIni);
+        tahunField.requestFocusInWindow();
+        return;
+    }
+    hasil = new Buku(kode, judul, penulisField.getText().trim(), tahun,
+            (StatusBuku) statusCombo.getSelectedItem());
+    dispose();
+}

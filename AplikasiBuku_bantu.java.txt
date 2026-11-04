@@ -1,0 +1,80 @@
+// Salin ke AplikasiBuku.java (JFrame Form buatan NetBeans).
+// Atribut ini harus dideklarasikan SEBELUM initComponents():
+//   private final BukuTableModel model = new BukuTableModel();
+//   private final TableRowSorter<BukuTableModel> sorter = new TableRowSorter<>(model);
+// Properti model bukuTable (Custom code): model
+// Impor: javax.swing.RowFilter, javax.swing.JOptionPane, java.util.regex.Pattern
+
+private void saring() {
+    String kata = cariField.getText().trim();
+    if (kata.isEmpty()) {
+        sorter.setRowFilter(null);
+    } else {
+        // kolom 0 = kode, 1 = judul, 2 = penulis
+        sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(kata), 0, 1, 2));
+    }
+    perbaruiStatus();
+}
+
+private int barisTerpilih() {
+    int barisTampilan = bukuTable.getSelectedRow();
+    if (barisTampilan < 0) {
+        return -1;
+    }
+    return bukuTable.convertRowIndexToModel(barisTampilan);
+}
+
+private void perbaruiStatus() {
+    statusLabel.setText("Menampilkan " + bukuTable.getRowCount() + " dari "
+            + model.getRowCount() + " buku, " + model.jumlahTersedia() + " tersedia");
+}
+
+private void perbaruiTombol() {
+    boolean adaPilihan = bukuTable.getSelectedRow() >= 0;
+    ubahButton.setEnabled(adaPilihan);
+    hapusButton.setEnabled(adaPilihan);
+    ubahItem.setEnabled(adaPilihan);
+    hapusItem.setEnabled(adaPilihan);
+}
+
+private void tambah() {
+    Buku baru = new DialogBuku(this, "Tambah Buku", null).tampilkan();
+    if (baru != null) {
+        model.tambah(baru);
+        perbaruiStatus();
+    }
+}
+
+private void ubah() {
+    int baris = barisTerpilih();
+    if (baris < 0) {
+        return;
+    }
+    Buku hasil = new DialogBuku(this, "Ubah Buku", model.get(baris)).tampilkan();
+    if (hasil != null) {
+        model.ubah(baris, hasil);
+        perbaruiStatus(); // status Tersedia/Dipinjam bisa berubah
+    }
+}
+
+private void hapus() {
+    int baris = barisTerpilih();
+    if (baris < 0) {
+        return;
+    }
+    String judul = model.get(baris).judul();
+    int jawab = JOptionPane.showConfirmDialog(this, "Hapus buku " + judul + "?",
+            "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+    if (jawab == JOptionPane.YES_OPTION) {
+        model.hapus(baris);
+        perbaruiStatus();
+    }
+}
+
+private void isiContoh() {
+    model.tambah(new Buku("B001", "Algoritma dan Pemrograman", "Rinaldi Munir", 2016, StatusBuku.TERSEDIA));
+    model.tambah(new Buku("B002", "Pemrograman Java", "Budi Raharjo", 2019, StatusBuku.DIPINJAM));
+    model.tambah(new Buku("B003", "Basis Data", "Abdul Kadir", 2014, StatusBuku.TERSEDIA));
+    model.tambah(new Buku("B004", "Struktur Data", "Moh. Sjukani", 2012, StatusBuku.TERSEDIA));
+    model.tambah(new Buku("B005", "Rekayasa Perangkat Lunak", "Rosa A. S.", 2018, StatusBuku.DIPINJAM));
+}
